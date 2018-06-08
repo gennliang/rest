@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>接口测试工具</title>
+	<link rel="shortcut icon" href="./favicon.ico" />
+	<link rel="bookmark" href="./favicon.ico" />
+	<link rel="stylesheet" href="./bs/css/bootstrap.min.css">
+	<link rel="stylesheet" href="./bs/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="./js/bt/bootstrap-table.css">
+	<link rel="stylesheet" href="./js/jquery.jsonview.min.css">
+	<link rel="stylesheet" href="./js/ztree/zTreeStyle/zTreeStyle.css">
+
+
+	<script src="./js/common.js"></script>
+	<script src="./js/jquery-2.2.1.min.js"></script>
+	<script src="./bs/js/bootstrap.min.js"></script>
+	<script src="./js/app.js"></script>
+	<script src="./js/crypto-js.js"></script>
+	<script src="./js/lru.js"></script>
+	<script src="./js/bt/bootstrap-table.min.js"></script>
+	<script src="./js/bt/locale/bootstrap-table-zh-CN.min.js"></script>
+	<script src="./js/jquery.jsonview.min.js"></script>
+	<script src="./js/ztree/jquery.ztree.all.min.js"></script>
+	<script src="./js/tree.js"></script>
+
+	<style>
+		input,
+		textarea,
+		select,
+		.radio-inline {
+			font-family: Monaco
+		}
+
+		textarea.form-control {
+			font-size: 12px;
+		}
+
+		.json_view {
+			height: 500px;
+			overflow: scroll;
+			overflow-x: auto;
+			overflow-y: auto
+		}
+
+
+		input[type=file] {
+			height: 35px;
+			width: 200px;
+		}
+
+		input[type=file]:before {
+			content: "导入";
+			letter-spacing: 0.3em;
+			height: 35px;
+			line-height: 36px;
+			width: 200px;
+			display: block;
+			font-size: 18px;
+			text-align: center;
+			font-family: "Segoe UI", "Microsoft Yahei", Arial;
+			color: #fdfdfd;
+			background-color: #2ECC71;
+			position: absolute;
+			z-index: 10;
+			border-radius: 5px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="navbar navbar-inverse" role="navigation">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="./index.html">接口测试工具</a>
+			</div>
+			<div class="navbar-collapse collapse">
+				<ul class="nav navbar-nav">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">导出
+							<b class="caret"></b>
+						</a>
+						<ul class="dropdown-menu">
+							<li>
+								<a id="exportBtn" href="javascript:;">导出到文件</a>
+							</li>
+							<li>
+								<a id="exportTextBtn" href="javascript:;" data-toggle="modal" data-target="#modal_export">导出文本</a>
+							</li>
+						</ul>
+					</li>
+                    <li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">导入
+							<b class="caret"></b>
+						</a>
+						<ul class="dropdown-menu">
+							<li>
+								<a id="inportBtn" href="javascript:;" data-toggle="modal" data-target="#modal_history">从文件导入</a>
+							</li>
+							<li>
+								<a href="javascript:;" data-toggle="modal" data-target="#modal_inport">导入文本</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="container-fluid theme-showcase" role="main">
+		<div class="row">
+			<div class="col-sm-12">
+
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-3">
+				<div class="row">
+					<div class="col-xs-12">
+						<form class="form-inline">
+							<div class="form-group">
+								<input type="email" class="form-control" id="input-search" placeholder="搜索：菜单,URL">
+							</div>
+						</form>
+					</div>
+				</div>
+				<p></p>
+				<div class="row">
+					<div class="col-xs-12">
+						<button type="button" id="btn_open_all" class="btn btn-default">展开</button>
+						<button type="button" id="btn_close_all" class="btn btn-default">折叠</button>
+					</div>
+				</div>
+				<div class="row">
+					<ul id="treeBox" class="ztree"></ul>
+				</div>
+			</div>
+			<div class="col-sm-5">
+				<div class="row">
+					<div class="col-xs-10">
+						<input id="title" type="text" class="form-control" placeholder="标题">
+					</div>
+				</div>
+				<div class="row" style="margin-top: 10px;">
+					<div class="col-xs-10">
+						<input id="t_req_url" type="text" class="form-control" placeholder="请求地址">
+					</div>
+				</div>
+				<div class="row">
+					<p>
+				</div>
+				<div class="row">
+					<div class="col-xs-10">
+						<form class="form-inline">
+							<div class="form-group">
+								<label for="exampleInputName2">方式</label>
+								<select id="sel_method" class="form-control">
+									<option value="GET">GET</option>
+									<option value="POST">POST</option>
+									<option value="PUT">PUT</option>
+									<option value="DELETE">DELETE</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label for="exampleInputName2">格式</label>
+								<select id="r_req_c_type" class="form-control">
+									<option value="application/x-www-form-urlencoded; charset=UTF-8">Default</option>
+									<option value="application/json; charset=UTF-8">JSON</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label for="exampleInputName2">编码</label>
+								<select id="r_req_type" class="form-control">
+									<option value="normal">Normal</option>
+									<option value="base64">BASE64</option>
+								</select>
+							</div>
+							<button id="btn_send" class="btn btn-primary" type="button"> 提交</button>
+						</form>
+					</div>
+				</div>
+				<div class="row" style="margin-top:10px;">
+					<div class="col-xs-10">
+						<span id="span_wait" class="text-danger" style="display:none;">please wait...</span>
+						<button id="btn_format_params" class="btn btn-default" type="button"> JSON格式化</button>
+						<button id="btn_save" class="btn btn-info" type="button"> 保存</button>
+					</div>
+				</div>
+				<p>
+					<div class="form-group">
+						<textarea id="v_q" class="form-control" style="height:500px" placeholder="请求报文" spellcheck="false"></textarea>
+					</div>
+					<div class="form-group">
+						<textarea id="remark" class="form-control" style="height:200px" placeholder="备注" spellcheck="false"></textarea>
+					</div>
+			</div>
+
+			<div class="col-sm-4">
+				<div class="row">
+					<div class="pull-right">
+						<button type="button" id="btn_be" class="btn btn-default">BASE64编码</button>
+						<button type="button" id="btn_bd" class="btn btn-default">BASE64解码</button>
+						<button type="button" id="btn_jf" class="btn btn-default">JSON格式化</button>
+						<button type="button" id="btn_jv" class="btn btn-default" data-toggle="modal" data-target="#modal_json_view">JSON VIEW</button>
+						<button type="button" id="btn_empty" class="btn btn-default">清空结果</button>
+					</div>
+				</div>
+
+				<div class="row form-group" style="margin-top: 10px;">
+					<textarea id="v_r" class="form-control" style="height:590px" placeholder="返回结果" spellcheck="false"></textarea>
+				</div>
+				</p>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- Modal History -->
+	<div class="modal fade" id="modal_history" tabindex="-1" role="dialog" aria-labelledby="modal_history_label" aria-hidden="true">
+		<div class="modal-dialog" style="width:1000px;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="modal_history_label">导入</h4>
+				</div>
+				<div class="modal-body">
+					<!-- <table class="table"></table> -->
+					<input id="dataRestore" type="file" accept=".json" />
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
+				</div>
+			</div>
+		</div>
+	</div>
+    
+        
+    <!-- Modal Export -->
+    <div class="modal fade" id="modal_export" tabindex="-1" role="dialog" aria-labelledby="modal_export_label" aria-hidden="true">
+        <div class="modal-dialog" style="width:1000px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="modal_export_label">导出</h4>
+                </div>
+                <div class="modal-body">
+                    <textarea id="exportTextResult" style="width:500px;height:300px;" ></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal inport -->
+    <div class="modal fade" id="modal_inport" tabindex="-1" role="dialog" aria-labelledby="modal_inport_label" aria-hidden="true">
+        <div class="modal-dialog" style="width:1000px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="modal_export_label">导入</h4>
+                </div>
+                <div class="modal-body">
+                    <textarea id="inportTextResult" style="width:500px;height:300px;" ></textarea>
+                    <br>
+                    <button type="button" class="btn btn-info" id="inportTextBtn">导入</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<!-- Modal Json View -->
+	<div class="modal fade" id="modal_json_view" tabindex="-1" role="dialog" aria-labelledby="modal_json_view_label" aria-hidden="true">
+		<div class="modal-dialog" style="width:1000px;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="modal_json_view_label">Json View</h4>
+				</div>
+				<div class="modal-body">
+					<div class="json_view"></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+
+</html>
